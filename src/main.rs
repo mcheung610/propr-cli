@@ -50,6 +50,10 @@ fn cli() -> Command {
                 ),
         )
         .subcommand(
+            Command::new("generate_title")
+                .about("Generates a PR title and outputs it")
+        )
+        .subcommand(
             Command::new("config")
                 .about("Configure propr to your liking")
                 .arg_required_else_help(true)
@@ -75,6 +79,7 @@ async fn main() {
     match matches.subcommand() {
         Some(("create", sub_matches)) => commands::create::run(sub_matches).await,
         Some(("generate", sub_matches)) => commands::generate::run(sub_matches).await,
+        Some(("generate_title", sub_matches)) => commands::generate_title::run(sub_matches).await,
         Some(("config", sub_matches)) => commands::config::run(sub_matches),
         _ => unreachable!(),
     }

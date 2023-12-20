@@ -169,6 +169,33 @@ pub async fn generate_title(description: &str) -> Result<String, Error> {
     get_chat_completion(&body).await
 }
 
+pub async fn generate_title_with_branch_name(description: &str, branch_name: &str) -> Result<String, Error> {
+    let system_message = "Generate a concise PR title from the provided diff and prefix the title with feat and the jira ticket which can be obtain from the branch name.";
+    let user_message = "diff: -omit this line\n+add this line\n\n branch name: RQ-1234-my-branch";
+    let ai_message = "feat: [RQ-1234] omit-and-add-a-line";
+    let content = &format!("diff: {description} \n\n branch name: {branch_name}");
+
+    /*
+    Generate the title using gpt-3.5-turbo since it is the fastest model
+    and we don't want to spend too many tokens on this
+    */
+    let body = serde_json::json!({
+        "model": "gpt-3.5-turbo",
+        "messages": [
+            { "role": "system", "content": system_message },
+            { "role": "user", "content": user_message},
+            { "role": "assistant", "content": ai_message },
+            { "role": "user", "content": content }
+        ],
+        "temperature": 0.7,
+        "top_p": 1,
+        "frequency_penalty": 0,
+        "presence_penalty": 0,
+        "max_tokens": MAX_TOKEN_LENGTH,
+    });
+    get_chat_completion(&body).await
+}
+
 /// Generate a concise PR description
 pub async fn generate_description(
     diff: &str,
